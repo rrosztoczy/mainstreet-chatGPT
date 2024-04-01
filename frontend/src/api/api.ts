@@ -27,14 +27,6 @@ export async function getUserInfo(): Promise<UserInfo[]> {
     return payload;
 }
 
-// export const fetchChatHistoryInit = async (): Promise<Conversation[] | null> => {
-export const fetchChatHistoryInit = (): Conversation[] | null => {
-    // Make initial API call here
-
-    // return null;
-    return chatHistorySampleData;
-}
-
 export const historyList = async (offset=0): Promise<Conversation[] | null> => {
     const response = await fetch(`/history/list?offset=${offset}`, {
         method: "GET",
