@@ -9,16 +9,16 @@ param environmentName string
 @description('Primary location for all resources')
 param location string
 
-param appServicePlanName string = ''
-param backendServiceName string = ''
-param resourceGroupName string = ''
+param appServicePlanName string = 'MainstreetGPT'
+param backendServiceName string = 'MainstreetGPT'
+param resourceGroupName string = 'MainstreetGPT'
 
-param searchServiceName string = ''
-param searchServiceResourceGroupName string = ''
+param searchServiceName string = 'mainstreet-gpt'
+param searchServiceResourceGroupName string = 'MainstreetGPT'
 param searchServiceResourceGroupLocation string = location
 param searchServiceSkuName string = ''
-param searchIndexName string = 'gptkbindex'
-param searchUseSemanticSearch bool = false
+param searchIndexName string = 'mainstreet-gpt-index'
+param searchUseSemanticSearch bool = true
 param searchSemanticSearchConfig string = 'default'
 param searchTopK int = 5
 param searchEnableInDomain bool = true
@@ -27,12 +27,12 @@ param searchFilenameColumn string = 'filepath'
 param searchTitleColumn string = 'title'
 param searchUrlColumn string = 'url'
 
-param openAiResourceName string = ''
-param openAiResourceGroupName string = ''
+param openAiResourceName string = 'MainstreetGPT'
+param openAiResourceGroupName string = 'MainstreetGPT'
 param openAiResourceGroupLocation string = location
 param openAiSkuName string = ''
-param openAIModel string = 'turbo16k'
-param openAIModelName string = 'gpt-35-turbo-16k'
+param openAIModel string = 'gpt-4-1106-preview'
+param openAIModelName string = 'gpt-4'
 param openAITemperature int = 0
 param openAITopP int = 1
 param openAIMaxTokens int = 1000
@@ -42,19 +42,13 @@ param openAIStream bool = true
 param embeddingDeploymentName string = 'embedding'
 param embeddingModelName string = 'text-embedding-ada-002'
 
-// Used by prepdocs.py: Form recognizer
-param formRecognizerServiceName string = ''
-param formRecognizerResourceGroupName string = ''
-param formRecognizerResourceGroupLocation string = location
-param formRecognizerSkuName string = ''
-
 // Used for the Azure AD application
 param authClientId string
 @secure()
 param authClientSecret string
 
 // Used for Cosmos DB
-param cosmosAccountName string = ''
+param cosmosAccountName string = 'mainstreet-gpt'
 
 @description('Id of the user or app to assign application roles')
 param principalId string = ''
@@ -107,7 +101,7 @@ module backend 'core/host/appservice.bicep' = {
     tags: union(tags, { 'azd-service-name': 'backend' })
     appServicePlanId: appServicePlan.outputs.id
     runtimeName: 'python'
-    runtimeVersion: '3.10'
+    runtimeVersion: '3.11'
     scmDoBuildDuringDeployment: true
     managedIdentity: true
     authClientSecret: authClientSecret
@@ -146,7 +140,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
   name: 'openai'
   scope: openAiResourceGroup
   params: {
-    name: !empty(openAiResourceName) ? openAiResourceName : '${abbrs.cognitiveServicesAccounts}${resourceToken}'
+    name: !empty(openAiResourceName) ? openAiResourceName : 'MainstreetGPT'
     location: openAiResourceGroupLocation
     tags: tags
     sku: {
@@ -158,7 +152,7 @@ module openAi 'core/ai/cognitiveservices.bicep' = {
         model: {
           format: 'OpenAI'
           name: openAIModelName
-          version: '0613'
+          version: '1106-Preview'
         }
         capacity: 30
       }
@@ -179,7 +173,7 @@ module searchService 'core/search/search-services.bicep' = {
   name: 'search-service'
   scope: searchServiceResourceGroup
   params: {
-    name: !empty(searchServiceName) ? searchServiceName : 'gptkb-${resourceToken}'
+    name: !empty(searchServiceName) ? searchServiceName : 'mainstreet-gpt'
     location: searchServiceResourceGroupLocation
     tags: tags
     authOptions: {
@@ -200,7 +194,7 @@ module cosmos 'db.bicep' = {
   scope: resourceGroup
   params: {
     accountName: !empty(cosmosAccountName) ? cosmosAccountName : '${abbrs.documentDBDatabaseAccounts}${resourceToken}'
-    location: 'eastus'
+    location: location
     tags: tags
     principalIds: [principalId, backend.outputs.identityPrincipalId]
   }
@@ -269,21 +263,6 @@ module searchRoleBackend 'core/security/role.bicep' = {
   }
 }
 
-// For doc prep
-module docPrepResources 'docprep.bicep' = {
-  name: 'docprep-resources${resourceToken}'
-  params: {
-    location: location
-    resourceToken: resourceToken
-    tags: tags
-    principalId: principalId
-    resourceGroupName: resourceGroup.name
-    formRecognizerServiceName: formRecognizerServiceName
-    formRecognizerResourceGroupName: formRecognizerResourceGroupName
-    formRecognizerResourceGroupLocation: formRecognizerResourceGroupLocation
-    formRecognizerSkuName: !empty(formRecognizerSkuName) ? formRecognizerSkuName : 'S0'
-  }
-}
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
@@ -320,11 +299,6 @@ output AZURE_OPENAI_MAX_TOKENS int = openAIMaxTokens
 output AZURE_OPENAI_STOP_SEQUENCE string = openAIStopSequence
 output AZURE_OPENAI_SYSTEM_MESSAGE string = openAISystemMessage
 output AZURE_OPENAI_STREAM bool = openAIStream
-
-// Used by prepdocs.py:
-output AZURE_FORMRECOGNIZER_SERVICE string = docPrepResources.outputs.AZURE_FORMRECOGNIZER_SERVICE
-output AZURE_FORMRECOGNIZER_RESOURCE_GROUP string = docPrepResources.outputs.AZURE_FORMRECOGNIZER_RESOURCE_GROUP
-output AZURE_FORMRECOGNIZER_SKU_NAME string = docPrepResources.outputs.AZURE_FORMRECOGNIZER_SKU_NAME
 
 // cosmos
 output AZURE_COSMOSDB_ACCOUNT string = cosmos.outputs.accountName

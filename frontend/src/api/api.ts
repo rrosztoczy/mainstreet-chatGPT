@@ -1,5 +1,4 @@
 import { UserInfo, ConversationRequest, Conversation, ChatMessage, CosmosDBHealth, CosmosDBStatus } from "./models";
-import { chatHistorySampleData } from "../constants/chatHistory";
 
 export async function conversationApi(options: ConversationRequest, abortSignal: AbortSignal): Promise<Response> {
     const response = await fetch("/conversation", {
@@ -25,14 +24,6 @@ export async function getUserInfo(): Promise<UserInfo[]> {
 
     const payload = await response.json();
     return payload;
-}
-
-// export const fetchChatHistoryInit = async (): Promise<Conversation[] | null> => {
-export const fetchChatHistoryInit = (): Conversation[] | null => {
-    // Make initial API call here
-
-    // return null;
-    return chatHistorySampleData;
 }
 
 export const historyList = async (offset=0): Promise<Conversation[] | null> => {

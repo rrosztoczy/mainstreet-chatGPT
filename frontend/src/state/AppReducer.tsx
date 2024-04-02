@@ -1,4 +1,3 @@
-import { Conversation, Feedback, fetchChatHistoryInit, historyList } from '../api';
 import { Action, AppState } from './AppProvider';
 
 // Define the reducer function
@@ -31,7 +30,6 @@ export const appStateReducer = (state: AppState, action: Action): AppState => {
                     if(state.currentChat?.id === action.payload.id){
                         state.currentChat.title = action.payload.title;
                     }
-                    //TODO: make api call to save new title to DB
                     return { ...chat, title: action.payload.title };
                 }
                 return chat;
@@ -43,13 +41,10 @@ export const appStateReducer = (state: AppState, action: Action): AppState => {
             }
             let filteredChat = state.chatHistory.filter(chat => chat.id !== action.payload);
             state.currentChat = null;
-            //TODO: make api call to delete conversation from DB
             return { ...state, chatHistory: filteredChat };
         case 'DELETE_CHAT_HISTORY':
-            //TODO: make api call to delete all conversations from DB
             return { ...state, chatHistory: [], filteredChatHistory: [], currentChat: null };
         case 'DELETE_CURRENT_CHAT_MESSAGES':
-            //TODO: make api call to delete current conversation messages from DB
             if(!state.currentChat || !state.chatHistory){
                 return state;
             }

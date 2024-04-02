@@ -19,13 +19,13 @@ export type Action =
     | { type: 'UPDATE_CHAT_HISTORY_LOADING_STATE', payload: ChatHistoryLoadingState }
     | { type: 'UPDATE_CURRENT_CHAT', payload: Conversation | null }
     | { type: 'UPDATE_FILTERED_CHAT_HISTORY', payload: Conversation[] | null }
-    | { type: 'UPDATE_CHAT_HISTORY', payload: Conversation } // API Call
-    | { type: 'UPDATE_CHAT_TITLE', payload: Conversation } // API Call
-    | { type: 'DELETE_CHAT_ENTRY', payload: string } // API Call
-    | { type: 'DELETE_CHAT_HISTORY'}  // API Call
-    | { type: 'DELETE_CURRENT_CHAT_MESSAGES', payload: string }  // API Call
-    | { type: 'FETCH_CHAT_HISTORY', payload: Conversation[] | null }  // API Call
-    | { type: 'FETCH_FRONTEND_SETTINGS', payload: FrontendSettings | null }  // API Call
+    | { type: 'UPDATE_CHAT_HISTORY', payload: Conversation } // No API Call
+    | { type: 'UPDATE_CHAT_TITLE', payload: Conversation } // No API Call
+    | { type: 'DELETE_CHAT_ENTRY', payload: string } // No API Call
+    | { type: 'DELETE_CHAT_HISTORY'}  // No API Call
+    | { type: 'DELETE_CURRENT_CHAT_MESSAGES', payload: string }  // No API Call
+    | { type: 'FETCH_CHAT_HISTORY', payload: Conversation[] | null }  // No API Call
+    | { type: 'FETCH_FRONTEND_SETTINGS', payload: FrontendSettings | null }  // No API Call
     | { type: 'SET_FEEDBACK_STATE'; payload: { answerId: string; feedback: Feedback.Positive | Feedback.Negative | Feedback.Neutral } }
     | { type: 'GET_FEEDBACK_STATE'; payload: string };
 
